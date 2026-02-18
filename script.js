@@ -287,7 +287,6 @@ function selectOKR(okrId) {
     
     // Get the OKR data
     const okrLink = selectedCard.dataset.okrLink;
-    const okrId = parseInt(selectedCard.dataset.okrId);
     const selectedOKR = allOKRs.find(o => o.id === okrId);
     const isChief = selectedOKR && selectedOKR.level.toLowerCase() === 'chief';
     
