@@ -125,7 +125,7 @@ header h1 {
     stroke: rgba(255, 255, 255, 0.4);
     stroke-width: 2;
     fill: none;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease;
 }
 
 .connection-line.highlighted {
@@ -134,12 +134,16 @@ header h1 {
     filter: drop-shadow(0 0 4px rgba(74, 222, 128, 0.6));
 }
 
+.connection-line.faded {
+    opacity: 0.2;
+}
+
 .okr-card {
     background: white;
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     cursor: pointer;
     position: relative;
     overflow: visible;
@@ -147,6 +151,11 @@ header h1 {
     z-index: 2;
     min-width: 300px;
     flex: 0 1 auto;
+}
+
+.okr-card.faded {
+    opacity: 0.25;
+    pointer-events: none;
 }
 
 .okr-card::before {

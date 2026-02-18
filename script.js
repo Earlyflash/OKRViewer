@@ -241,19 +241,27 @@ function drawConnectionLines(okrs, managerFilter, staffFilter) {
     updateLineHighlighting();
 }
 
-// Update connection line highlighting
+// Update connection line highlighting and fade lines outside hierarchy
 function updateLineHighlighting() {
     const lines = document.querySelectorAll('.connection-line');
+    const inHierarchy = selectedOKRId !== null
+        ? new Set([selectedOKRId, ...linkedOKRIds])
+        : null;
+    
     lines.forEach(line => {
-        line.classList.remove('highlighted');
+        line.classList.remove('highlighted', 'faded');
         
         if (selectedOKRId) {
             const fromId = parseInt(line.getAttribute('data-from'));
             const toId = parseInt(line.getAttribute('data-to'));
+            const lineInHierarchy = inHierarchy && (inHierarchy.has(fromId) || inHierarchy.has(toId));
             
-            // Highlight if line connects to/from selected OKR
-            if (fromId === selectedOKRId || toId === selectedOKRId) {
-                line.classList.add('highlighted');
+            if (lineInHierarchy) {
+                if (fromId === selectedOKRId || toId === selectedOKRId) {
+                    line.classList.add('highlighted');
+                }
+            } else {
+                line.classList.add('faded');
             }
         }
     });
@@ -266,12 +274,21 @@ let allOKRs = [];
 let currentManagerFilter = '';
 let currentStaffFilter = '';
 
-// Select an OKR and highlight related ones (parent and subordinates at each level)
+// Select an OKR and highlight related ones (parent and subordinates at each level).
+// OKRs outside the hierarchy are faded out. Click the same OKR again to clear selection.
 function selectOKR(okrId) {
     const okrs = Array.from(document.querySelectorAll('.okr-card'));
     
+    if (selectedOKRId === okrId) {
+        okrs.forEach(card => card.classList.remove('selected', 'linked', 'faded'));
+        selectedOKRId = null;
+        linkedOKRIds.clear();
+        updateLineHighlighting();
+        return;
+    }
+    
     okrs.forEach(card => {
-        card.classList.remove('selected', 'linked');
+        card.classList.remove('selected', 'linked', 'faded');
     });
     
     selectedOKRId = okrId;
@@ -287,16 +304,19 @@ function selectOKR(okrId) {
     if (!selectedOKR) return;
     
     const level = selectedOKR.level.toLowerCase();
+    const inHierarchy = new Set([okrId]);
     
     if (level === 'chief') {
         okrs.forEach(card => {
             if (card.dataset.okrLink === okrId.toString()) {
                 card.classList.add('linked');
                 linkedOKRIds.add(parseInt(card.dataset.okrId));
+                inHierarchy.add(parseInt(card.dataset.okrId));
             }
         });
     } else if (level === 'manager') {
         if (okrLink) {
+            inHierarchy.add(parseInt(okrLink));
             const parentCard = document.querySelector(`[data-okr-id="${okrLink}"]`);
             if (parentCard) {
                 parentCard.classList.add('linked');
@@ -307,10 +327,12 @@ function selectOKR(okrId) {
             if (card.dataset.okrLink === okrId.toString()) {
                 card.classList.add('linked');
                 linkedOKRIds.add(parseInt(card.dataset.okrId));
+                inHierarchy.add(parseInt(card.dataset.okrId));
             }
         });
     } else if (level === 'staff') {
         if (okrLink) {
+            inHierarchy.add(parseInt(okrLink));
             const parentCard = document.querySelector(`[data-okr-id="${okrLink}"]`);
             if (parentCard) {
                 parentCard.classList.add('linked');
@@ -318,6 +340,13 @@ function selectOKR(okrId) {
             }
         }
     }
+    
+    okrs.forEach(card => {
+        const id = parseInt(card.dataset.okrId);
+        if (!inHierarchy.has(id)) {
+            card.classList.add('faded');
+        }
+    });
     
     updateLineHighlighting();
 }
