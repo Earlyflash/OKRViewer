@@ -114,18 +114,18 @@ function createOKRCard(okr, okrs, ownerColors) {
     return card;
 }
 
-// Pleasant color palette for owner-based coloring (accent, light background)
+// Pleasant color palette for owner-based coloring (accent, card background by owner name)
 const OWNER_COLORS = [
-    { accent: '#6366f1', bg: '#eef2ff' },   /* indigo */
-    { accent: '#059669', bg: '#ecfdf5' },   /* emerald */
-    { accent: '#dc2626', bg: '#fef2f2' },  /* rose */
-    { accent: '#ea580c', bg: '#fff7ed' },   /* amber */
-    { accent: '#7c3aed', bg: '#f5f3ff' },  /* violet */
-    { accent: '#0d9488', bg: '#f0fdfa' },  /* teal */
-    { accent: '#c026d3', bg: '#fdf4ff' },  /* fuchsia */
-    { accent: '#2563eb', bg: '#eff6ff' },  /* blue */
-    { accent: '#ca8a04', bg: '#fefce8' },  /* yellow */
-    { accent: '#be123c', bg: '#fff1f2' },  /* pink */
+    { accent: '#6366f1', bg: '#d4d7ff' },   /* indigo */
+    { accent: '#059669', bg: '#cceee0' },   /* emerald */
+    { accent: '#dc2626', bg: '#ffd4d4' },   /* rose */
+    { accent: '#ea580c', bg: '#ffe4cc' },   /* amber */
+    { accent: '#7c3aed', bg: '#e4d9ff' },   /* violet */
+    { accent: '#0d9488', bg: '#ccf0eb' },   /* teal */
+    { accent: '#c026d3', bg: '#f5d4f5' },   /* fuchsia */
+    { accent: '#2563eb', bg: '#cce0ff' },   /* blue */
+    { accent: '#ca8a04', bg: '#fff0b3' },   /* yellow */
+    { accent: '#be123c', bg: '#ffd4dc' },   /* pink */
 ];
 
 function getOwnerColorMap(okrs) {
