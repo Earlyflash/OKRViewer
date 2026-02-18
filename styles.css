@@ -380,9 +380,9 @@ header h1 {
     
     .okr-row {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
-        justify-content: center;
-        gap: 16px;
+        /* ~180px min allows 2 columns on iPhone Pro Max portrait (~430px) and similar phones */
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
         min-height: 120px;
     }
     
