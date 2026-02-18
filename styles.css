@@ -332,18 +332,127 @@ header h1 {
     background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
 }
 
+/* Tablet and down */
 @media (max-width: 768px) {
+    body {
+        padding: 12px;
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+    }
+    
+    header {
+        margin-bottom: 24px;
+    }
+    
     header h1 {
-        font-size: 2rem;
+        font-size: 1.75rem;
+    }
+    
+    .subtitle {
+        font-size: 0.95rem;
+    }
+    
+    .filters-row {
+        margin-top: 16px;
+        gap: 12px;
+    }
+    
+    .manager-filter {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    
+    .manager-filter select {
+        min-width: 0;
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+    }
+    
+    .level-section {
+        margin-bottom: 32px;
+    }
+    
+    .level-title {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
     }
     
     .okr-row {
-        flex-direction: column;
-        align-items: center;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+        justify-content: center;
+        gap: 16px;
+        min-height: 120px;
     }
     
     .okr-card {
-        width: 100%;
-        max-width: 100%;
+        min-width: 0;
+        padding: 16px;
+    }
+    
+    .okr-level {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        margin-bottom: 8px;
+    }
+    
+    .okr-owner {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+        margin-bottom: 10px;
+    }
+    
+    .okr-objective {
+        font-size: 1.15rem;
+        margin-bottom: 8px;
+    }
+    
+    .okr-key-result {
+        font-size: 0.9rem;
+        padding-left: 12px;
+    }
+    
+    .okr-link-info {
+        font-size: 0.8rem;
+        margin-top: 12px;
+        padding-top: 12px;
+    }
+    
+    .chief-row,
+    .manager-row,
+    .staff-row {
+        margin-top: 24px;
+        margin-bottom: 0;
+    }
+    
+    .legend {
+        padding: 14px;
+        gap: 14px;
+    }
+    
+    .legend-item {
+        font-size: 0.85rem;
+    }
+    
+    .legend-color {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* Narrow phones: single column, extra compact */
+@media (max-width: 380px) {
+    .okr-row {
+        grid-template-columns: 1fr;
+    }
+    
+    header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .filters-row {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
