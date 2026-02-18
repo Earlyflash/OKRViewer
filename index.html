@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OKR Viewer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 OKR Viewer</h1>
+            <p class="subtitle">Interactive Objectives and Key Results Dashboard</p>
+            <div class="manager-filter">
+                <label for="managerSelect">Filter by manager:</label>
+                <select id="managerSelect" aria-label="Filter by manager level">
+                    <option value="">All managers</option>
+                    <!-- Options filled by script -->
+                </select>
+            </div>
+        </header>
+        
+        <div class="okr-wrapper">
+            <div class="level-section">
+                <h2 class="level-title">Chief Level</h2>
+                <div class="okr-row chief-row" id="chiefRow">
+                    <!-- Chief OKRs will be dynamically loaded here -->
+                </div>
+            </div>
+            
+            <div class="level-section">
+                <h2 class="level-title">Manager Level</h2>
+                <div class="okr-row manager-row" id="managerRow">
+                    <!-- Manager OKRs will be dynamically loaded here -->
+                </div>
+            </div>
+            
+            <svg class="connection-lines" id="connectionLines">
+                <!-- Connection lines will be drawn here -->
+            </svg>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-color chief"></span>
+                <span>Chief Level</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color manager"></span>
+                <span>Manager Level</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color selected"></span>
+                <span>Selected</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color linked"></span>
+                <span>Linked</span>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
