@@ -1,11 +1,12 @@
 // OKR data embedded directly (can also be loaded from OKRs.txt file)
-const OKR_DATA = `ID | Level      | Objective          | Key Result              | OKRLink
-1  | Chief      | Hire More People   | 10 More people hired    | -
-2  | Chief      | Make more money    | 10 More money made      | -
-3  | Manager1   | Increase Team Size | 3 people hired          | 1
-4  | Manager1   | Improve Margins    | 4 more margin           | 2
-5  | Manager2   | More Team Size     | 1 people hired          | 1
-6  | Manager2   | Margins Better     | 2 more margin           | 2`;
+// Format: ID | Level | Owner | Objective | Key Result | OKRLink
+const OKR_DATA = `ID | Level | Owner     | Objective          | Key Result              | OKRLink
+1  | Chief | Chief Tech Bro      | Hire More People   | 10 More people hired    | -
+2  | Chief | Chief Tech Bro      | Make more money    | 10 More money made      | -
+3  | Manager | DD of Stuff   | Increase Team Size | 3 people hired          | 1
+4  | Manager | DD of Stuff   | Improve Margins    | 4 more margin           | 2
+5  | Manager | Chief Eng   | More Team Size     | 1 people hired          | 2
+6  | Manager | Chief Eng   | Margins Better     | 2 more margin           | 3`;
 
 // Parse OKRs from the text file or embedded data
 async function loadOKRs() {
@@ -39,6 +40,7 @@ async function loadOKRs() {
 }
 
 // Parse the OKR text data
+// Format: ID | Level | Owner | Objective | Key Result | OKRLink
 function parseOKRs(text) {
     const lines = text.trim().split('\n');
     const okrs = [];
@@ -50,16 +52,18 @@ function parseOKRs(text) {
         
         // Parse the pipe-delimited format
         const parts = line.split('|').map(p => p.trim());
-        if (parts.length >= 5) {
+        if (parts.length >= 6) {
             const id = parts[0];
             const level = parts[1];
-            const objective = parts[2];
-            const keyResult = parts[3];
-            const okrLink = parts[4];
+            const owner = parts[2];
+            const objective = parts[3];
+            const keyResult = parts[4];
+            const okrLink = parts[5];
             
             okrs.push({
                 id: parseInt(id),
                 level: level,
+                owner: owner,
                 objective: objective,
                 keyResult: keyResult,
                 okrLink: okrLink === '-' ? null : parseInt(okrLink)
@@ -73,16 +77,18 @@ function parseOKRs(text) {
 // Create OKR card element
 function createOKRCard(okr, okrs) {
     const card = document.createElement('div');
-    card.className = `okr-card ${okr.level.toLowerCase().includes('chief') ? 'chief' : 'manager'}`;
+    const isChief = okr.level.toLowerCase() === 'chief';
+    card.className = `okr-card ${isChief ? 'chief' : 'manager'}`;
     card.dataset.okrId = okr.id;
     card.dataset.okrLink = okr.okrLink || '';
     
-    const levelClass = okr.level.toLowerCase().includes('chief') ? 'chief' : 'manager';
+    const levelClass = isChief ? 'chief' : 'manager';
     const parentOKR = okr.okrLink ? okrs.find(o => o.id === okr.okrLink) : null;
     const linkText = parentOKR ? `🔗 Links to <strong>${parentOKR.objective}</strong>` : '';
     
     card.innerHTML = `
         <div class="okr-level ${levelClass}">${okr.level}</div>
+        <div class="okr-owner">👤 ${okr.owner}</div>
         <div class="okr-objective">${okr.objective}</div>
         <div class="okr-key-result">${okr.keyResult}</div>
         ${linkText ? `<div class="okr-link-info">${linkText}</div>` : ''}
@@ -93,14 +99,14 @@ function createOKRCard(okr, okrs) {
     return card;
 }
 
-// Get unique manager levels from OKRs (e.g. ["Manager1", "Manager2"])
+// Get unique manager owners from OKRs (e.g. ["DD of Stuff", "Chief Eng"])
 function getManagerLevels(okrs) {
-    const managerOKRs = okrs.filter(okr => !okr.level.toLowerCase().includes('chief'));
-    const levels = [...new Set(managerOKRs.map(o => o.level))].sort();
-    return levels;
+    const managerOKRs = okrs.filter(okr => okr.level.toLowerCase() === 'manager');
+    const owners = [...new Set(managerOKRs.map(o => o.owner))].sort();
+    return owners;
 }
 
-// Render OKRs, optionally filtered by manager level
+// Render OKRs, optionally filtered by manager owner
 function renderOKRs(okrs, managerFilter) {
     const chiefRow = document.getElementById('chiefRow');
     const managerRow = document.getElementById('managerRow');
@@ -108,11 +114,11 @@ function renderOKRs(okrs, managerFilter) {
     chiefRow.innerHTML = '';
     managerRow.innerHTML = '';
     
-    const chiefOKRs = okrs.filter(okr => okr.level.toLowerCase().includes('chief'));
-    let managerOKRs = okrs.filter(okr => !okr.level.toLowerCase().includes('chief'));
+    const chiefOKRs = okrs.filter(okr => okr.level.toLowerCase() === 'chief');
+    let managerOKRs = okrs.filter(okr => okr.level.toLowerCase() === 'manager');
     
     if (managerFilter) {
-        managerOKRs = managerOKRs.filter(okr => okr.level === managerFilter);
+        managerOKRs = managerOKRs.filter(okr => okr.owner === managerFilter);
         // Show only chiefs that are linked to by this manager's OKRs
         const linkedChiefIds = new Set(managerOKRs.map(o => o.okrLink).filter(Boolean));
         const filteredChiefOKRs = chiefOKRs.filter(okr => linkedChiefIds.has(okr.id));
@@ -165,9 +171,9 @@ function drawConnectionLines(okrs, managerFilter) {
     svg.setAttribute('height', wrapperRect.height);
     svg.setAttribute('viewBox', `0 0 ${wrapperRect.width} ${wrapperRect.height}`);
     
-    let managerOKRs = okrs.filter(okr => !okr.level.toLowerCase().includes('chief'));
+    let managerOKRs = okrs.filter(okr => okr.level.toLowerCase() === 'manager');
     if (managerFilter) {
-        managerOKRs = managerOKRs.filter(okr => okr.level === managerFilter);
+        managerOKRs = managerOKRs.filter(okr => okr.owner === managerFilter);
     }
     
     managerOKRs.forEach(managerOKR => {
@@ -251,7 +257,9 @@ function selectOKR(okrId) {
     
     // Get the OKR data
     const okrLink = selectedCard.dataset.okrLink;
-    const isChief = selectedCard.classList.contains('chief');
+    const okrId = parseInt(selectedCard.dataset.okrId);
+    const selectedOKR = allOKRs.find(o => o.id === okrId);
+    const isChief = selectedOKR && selectedOKR.level.toLowerCase() === 'chief';
     
     if (isChief) {
         // If it's a chief OKR, find all manager OKRs that link to it
@@ -302,11 +310,11 @@ async function init() {
     }
     
     const select = document.getElementById('managerSelect');
-    const managerLevels = getManagerLevels(allOKRs);
-    managerLevels.forEach(level => {
+    const managerOwners = getManagerLevels(allOKRs);
+    managerOwners.forEach(owner => {
         const opt = document.createElement('option');
-        opt.value = level;
-        opt.textContent = level;
+        opt.value = owner;
+        opt.textContent = owner;
         select.appendChild(opt);
     });
     

@@ -204,9 +204,20 @@ header h1 {
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 600;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+.okr-owner {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    background: #f0f4ff;
+    border-radius: 8px;
+    display: inline-block;
 }
 
 .okr-level.chief {
