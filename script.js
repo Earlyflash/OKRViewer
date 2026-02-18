@@ -53,12 +53,6 @@ function parseOKRs(text) {
         // Parse the pipe-delimited format
         const parts = line.split('|').map(p => p.trim());
         
-        // Debug logging for parsing issues
-        if (parts.length !== 6) {
-            console.warn(`Line ${i} has ${parts.length} parts, expected 6:`, parts);
-            console.warn(`Original line: "${line}"`);
-        }
-        
         if (parts.length >= 6) {
             const id = parts[0];
             const level = parts[1];
@@ -80,7 +74,6 @@ function parseOKRs(text) {
         }
     }
     
-    console.log(`Parsed ${okrs.length} OKRs:`, okrs);
     return okrs;
 }
 
@@ -91,13 +84,14 @@ function createOKRCard(okr, okrs) {
         return null;
     }
     
+    const levelLower = okr.level.toLowerCase();
+    const levelClass = levelLower === 'chief' ? 'chief' : levelLower === 'manager' ? 'manager' : 'staff';
+    
     const card = document.createElement('div');
-    const isChief = okr.level.toLowerCase() === 'chief';
-    card.className = `okr-card ${isChief ? 'chief' : 'manager'}`;
+    card.className = `okr-card ${levelClass}`;
     card.dataset.okrId = okr.id;
     card.dataset.okrLink = okr.okrLink || '';
     
-    const levelClass = isChief ? 'chief' : 'manager';
     const parentOKR = okr.okrLink ? okrs.find(o => o.id === okr.okrLink) : null;
     const linkText = parentOKR ? `🔗 Links to <strong>${parentOKR.objective}</strong>` : '';
     
@@ -114,63 +108,67 @@ function createOKRCard(okr, okrs) {
     return card;
 }
 
-// Get unique manager owners from OKRs (e.g. ["DD of Stuff", "Chief Eng"])
-function getManagerLevels(okrs) {
-    const managerOKRs = okrs.filter(okr => okr.level.toLowerCase() === 'manager');
-    const owners = [...new Set(managerOKRs.map(o => o.owner))].sort();
-    return owners;
+// Get unique manager owners from OKRs
+function getManagerOwners(okrs) {
+    const managerOKRs = okrs.filter(okr => okr.level && okr.level.toLowerCase() === 'manager');
+    return [...new Set(managerOKRs.map(o => o.owner))].sort();
 }
 
-// Render OKRs, optionally filtered by manager owner
-function renderOKRs(okrs, managerFilter) {
-    console.log('Rendering OKRs:', okrs.length, 'with filter:', managerFilter);
-    
+// Get unique staff owners from OKRs
+function getStaffOwners(okrs) {
+    const staffOKRs = okrs.filter(okr => okr.level && okr.level.toLowerCase() === 'staff');
+    return [...new Set(staffOKRs.map(o => o.owner))].sort();
+}
+
+// Render OKRs, optionally filtered by manager and/or staff owner
+function renderOKRs(okrs, managerFilter, staffFilter) {
     const chiefRow = document.getElementById('chiefRow');
     const managerRow = document.getElementById('managerRow');
+    const staffRow = document.getElementById('staffRow');
     
-    if (!chiefRow || !managerRow) {
-        console.error('Could not find chiefRow or managerRow elements!');
+    if (!chiefRow || !managerRow || !staffRow) {
+        console.error('Could not find required row elements!');
         return;
     }
     
     chiefRow.innerHTML = '';
     managerRow.innerHTML = '';
+    staffRow.innerHTML = '';
     
     const chiefOKRs = okrs.filter(okr => okr.level && okr.level.toLowerCase() === 'chief');
-    let managerOKRs = okrs.filter(okr => okr.level && okr.level.toLowerCase() === 'manager');
+    const managerOKRs = okrs.filter(okr => okr.level && okr.level.toLowerCase() === 'manager');
+    const staffOKRs = okrs.filter(okr => okr.level && okr.level.toLowerCase() === 'staff');
     
-    console.log('Chief OKRs:', chiefOKRs.length);
-    console.log('Manager OKRs:', managerOKRs.length);
+    let chiefsToShow, managersToShow, staffToShow;
     
-    if (managerFilter) {
-        managerOKRs = managerOKRs.filter(okr => okr.owner === managerFilter);
-        // Show only chiefs that are linked to by this manager's OKRs
-        const linkedChiefIds = new Set(managerOKRs.map(o => o.okrLink).filter(Boolean));
-        const filteredChiefOKRs = chiefOKRs.filter(okr => linkedChiefIds.has(okr.id));
-        
-        console.log('Filtered Chief OKRs:', filteredChiefOKRs.length);
-        console.log('Filtered Manager OKRs:', managerOKRs.length);
-        
-        filteredChiefOKRs.forEach(okr => {
-            const card = createOKRCard(okr, okrs);
-            chiefRow.appendChild(card);
-        });
+    if (managerFilter && staffFilter) {
+        managersToShow = managerOKRs.filter(okr => okr.owner === managerFilter);
+        staffToShow = staffOKRs.filter(okr => okr.owner === staffFilter);
+        const chiefIdsFromManagers = new Set(managersToShow.map(o => o.okrLink).filter(Boolean));
+        const parentIdsFromStaff = new Set(staffToShow.map(o => o.okrLink).filter(Boolean));
+        chiefsToShow = chiefOKRs.filter(okr => chiefIdsFromManagers.has(okr.id) || parentIdsFromStaff.has(okr.id));
+    } else if (managerFilter) {
+        managersToShow = managerOKRs.filter(okr => okr.owner === managerFilter);
+        const linkedChiefIds = new Set(managersToShow.map(o => o.okrLink).filter(Boolean));
+        chiefsToShow = chiefOKRs.filter(okr => linkedChiefIds.has(okr.id));
+        staffToShow = staffOKRs.filter(s => s.okrLink && (linkedChiefIds.has(s.okrLink) || managersToShow.some(m => m.id === s.okrLink)));
+    } else if (staffFilter) {
+        staffToShow = staffOKRs.filter(okr => okr.owner === staffFilter);
+        const parentIds = new Set(staffToShow.map(o => o.okrLink).filter(Boolean));
+        chiefsToShow = chiefOKRs.filter(okr => parentIds.has(okr.id));
+        managersToShow = managerOKRs.filter(okr => parentIds.has(okr.id));
     } else {
-        chiefOKRs.forEach(okr => {
-            const card = createOKRCard(okr, okrs);
-            chiefRow.appendChild(card);
-        });
+        chiefsToShow = chiefOKRs;
+        managersToShow = managerOKRs;
+        staffToShow = staffOKRs;
     }
     
-    managerOKRs.forEach(okr => {
-        const card = createOKRCard(okr, okrs);
-        managerRow.appendChild(card);
-    });
-    
-    console.log('Cards rendered - Chief:', chiefRow.children.length, 'Manager:', managerRow.children.length);
+    chiefsToShow.forEach(okr => { const c = createOKRCard(okr, okrs); if (c) chiefRow.appendChild(c); });
+    managersToShow.forEach(okr => { const c = createOKRCard(okr, okrs); if (c) managerRow.appendChild(c); });
+    staffToShow.forEach(okr => { const c = createOKRCard(okr, okrs); if (c) staffRow.appendChild(c); });
     
     setTimeout(() => {
-        drawConnectionLines(okrs, managerFilter);
+        drawConnectionLines(okrs, managerFilter, staffFilter);
     }, 100);
 }
 
@@ -189,8 +187,8 @@ function getRelativePosition(element, wrapper) {
     return { x, y };
 }
 
-// Draw connection lines between Manager OKRs and their parent Chief OKRs
-function drawConnectionLines(okrs, managerFilter) {
+// Draw connection lines: Manager→Chief and Staff→parent (Chief or Manager)
+function drawConnectionLines(okrs, managerFilter, staffFilter) {
     const svg = document.getElementById('connectionLines');
     const wrapper = svg.parentElement;
     
@@ -201,44 +199,45 @@ function drawConnectionLines(okrs, managerFilter) {
     svg.setAttribute('height', wrapperRect.height);
     svg.setAttribute('viewBox', `0 0 ${wrapperRect.width} ${wrapperRect.height}`);
     
-    let managerOKRs = okrs.filter(okr => okr.level.toLowerCase() === 'manager');
-    if (managerFilter) {
-        managerOKRs = managerOKRs.filter(okr => okr.owner === managerFilter);
-    }
-    
-    managerOKRs.forEach(managerOKR => {
-        if (!managerOKR.okrLink) return;
-        
-        const managerCard = document.querySelector(`[data-okr-id="${managerOKR.id}"]`);
-        const chiefCard = document.querySelector(`[data-okr-id="${managerOKR.okrLink}"]`);
-        
-        if (!managerCard || !chiefCard) return;
-        
-        // Get positions relative to wrapper
-        const chiefPos = getRelativePosition(chiefCard, wrapper);
-        const managerPos = getRelativePosition(managerCard, wrapper);
-        
-        // Calculate connection points (center bottom of chief, center top of manager)
-        const x1 = chiefPos.x + chiefCard.offsetWidth / 2;
-        const y1 = chiefPos.y + chiefCard.offsetHeight;
-        const x2 = managerPos.x + managerCard.offsetWidth / 2;
-        const y2 = managerPos.y;
-        
-        // Create path for curved line (smooth bezier curve)
+    function drawLine(fromCard, toCard, fromId, toId) {
+        if (!fromCard || !toCard) return;
+        const fromPos = getRelativePosition(fromCard, wrapper);
+        const toPos = getRelativePosition(toCard, wrapper);
+        const x1 = fromPos.x + fromCard.offsetWidth / 2;
+        const y1 = fromPos.y + fromCard.offsetHeight;
+        const x2 = toPos.x + toCard.offsetWidth / 2;
+        const y2 = toPos.y;
         const midY = y1 + (y2 - y1) * 0.5;
         const controlY1 = y1 + (midY - y1) * 0.5;
         const controlY2 = midY + (y2 - midY) * 0.5;
         const path = `M ${x1} ${y1} C ${x1} ${controlY1}, ${x2} ${controlY2}, ${x2} ${y2}`;
-        
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         line.setAttribute('d', path);
         line.setAttribute('class', 'connection-line');
-        line.setAttribute('data-from', managerOKR.okrLink);
-        line.setAttribute('data-to', managerOKR.id);
+        line.setAttribute('data-from', fromId);
+        line.setAttribute('data-to', toId);
         svg.appendChild(line);
+    }
+    
+    let managerOKRs = okrs.filter(okr => okr.level && okr.level.toLowerCase() === 'manager');
+    let staffOKRs = okrs.filter(okr => okr.level && okr.level.toLowerCase() === 'staff');
+    if (managerFilter) managerOKRs = managerOKRs.filter(okr => okr.owner === managerFilter);
+    if (staffFilter) staffOKRs = staffOKRs.filter(okr => okr.owner === staffFilter);
+    
+    managerOKRs.forEach(m => {
+        if (!m.okrLink) return;
+        const managerCard = document.querySelector(`[data-okr-id="${m.id}"]`);
+        const chiefCard = document.querySelector(`[data-okr-id="${m.okrLink}"]`);
+        drawLine(chiefCard, managerCard, m.okrLink, m.id);
     });
     
-    // Update line highlighting based on current selection
+    staffOKRs.forEach(s => {
+        if (!s.okrLink) return;
+        const staffCard = document.querySelector(`[data-okr-id="${s.id}"]`);
+        const parentCard = document.querySelector(`[data-okr-id="${s.okrLink}"]`);
+        drawLine(parentCard, staffCard, s.okrLink, s.id);
+    });
+    
     updateLineHighlighting();
 }
 
@@ -265,12 +264,12 @@ let selectedOKRId = null;
 let linkedOKRIds = new Set();
 let allOKRs = [];
 let currentManagerFilter = '';
+let currentStaffFilter = '';
 
-// Select an OKR and highlight related ones
+// Select an OKR and highlight related ones (parent and subordinates at each level)
 function selectOKR(okrId) {
     const okrs = Array.from(document.querySelectorAll('.okr-card'));
     
-    // Reset all cards
     okrs.forEach(card => {
         card.classList.remove('selected', 'linked');
     });
@@ -278,28 +277,39 @@ function selectOKR(okrId) {
     selectedOKRId = okrId;
     linkedOKRIds.clear();
     
-    // Find the selected OKR
     const selectedCard = document.querySelector(`[data-okr-id="${okrId}"]`);
     if (!selectedCard) return;
     
-    // Mark as selected
     selectedCard.classList.add('selected');
     
-    // Get the OKR data
     const okrLink = selectedCard.dataset.okrLink;
     const selectedOKR = allOKRs.find(o => o.id === okrId);
-    const isChief = selectedOKR && selectedOKR.level.toLowerCase() === 'chief';
+    if (!selectedOKR) return;
     
-    if (isChief) {
-        // If it's a chief OKR, find all manager OKRs that link to it
+    const level = selectedOKR.level.toLowerCase();
+    
+    if (level === 'chief') {
         okrs.forEach(card => {
             if (card.dataset.okrLink === okrId.toString()) {
                 card.classList.add('linked');
                 linkedOKRIds.add(parseInt(card.dataset.okrId));
             }
         });
-    } else {
-        // If it's a manager OKR, highlight its parent
+    } else if (level === 'manager') {
+        if (okrLink) {
+            const parentCard = document.querySelector(`[data-okr-id="${okrLink}"]`);
+            if (parentCard) {
+                parentCard.classList.add('linked');
+                linkedOKRIds.add(parseInt(okrLink));
+            }
+        }
+        okrs.forEach(card => {
+            if (card.dataset.okrLink === okrId.toString()) {
+                card.classList.add('linked');
+                linkedOKRIds.add(parseInt(card.dataset.okrId));
+            }
+        });
+    } else if (level === 'staff') {
         if (okrLink) {
             const parentCard = document.querySelector(`[data-okr-id="${okrLink}"]`);
             if (parentCard) {
@@ -309,7 +319,6 @@ function selectOKR(okrId) {
         }
     }
     
-    // Update connection line highlighting
     updateLineHighlighting();
 }
 
@@ -318,7 +327,7 @@ let resizeTimeout;
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
-        drawConnectionLines(allOKRs, currentManagerFilter);
+        drawConnectionLines(allOKRs, currentManagerFilter, currentStaffFilter);
         updateLineHighlighting();
     }, 250);
 });
@@ -333,42 +342,52 @@ async function init() {
     // Load OKRs from file (or fallback to embedded data)
     allOKRs = await loadOKRs();
     
-    console.log('Loaded OKRs:', allOKRs);
-    console.log('Number of OKRs:', allOKRs ? allOKRs.length : 0);
-    
     if (!allOKRs || allOKRs.length === 0) {
         console.error('No OKRs loaded! Check the console for parsing errors.');
-        // Show error message on page
         const chiefRow = document.getElementById('chiefRow');
         const managerRow = document.getElementById('managerRow');
-        if (chiefRow) chiefRow.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Error: No OKRs loaded. Check browser console for details.</div>';
-        if (managerRow) managerRow.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Error: No OKRs loaded. Check browser console for details.</div>';
+        const staffRow = document.getElementById('staffRow');
+        const msg = '<div style="color: white; text-align: center; padding: 20px;">Error: No OKRs loaded. Check browser console for details.</div>';
+        if (chiefRow) chiefRow.innerHTML = msg;
+        if (managerRow) managerRow.innerHTML = msg;
+        if (staffRow) staffRow.innerHTML = msg;
         return;
     }
     
-    const select = document.getElementById('managerSelect');
-    if (!select) {
-        console.error('Manager select element not found!');
+    const managerSelect = document.getElementById('managerSelect');
+    const staffSelect = document.getElementById('staffSelect');
+    if (!managerSelect || !staffSelect) {
+        console.error('Filter select elements not found!');
         return;
     }
     
-    const managerOwners = getManagerLevels(allOKRs);
-    console.log('Manager owners found:', managerOwners);
-    
-    managerOwners.forEach(owner => {
+    getManagerOwners(allOKRs).forEach(owner => {
         const opt = document.createElement('option');
         opt.value = owner;
         opt.textContent = owner;
-        select.appendChild(opt);
+        managerSelect.appendChild(opt);
     });
     
-    select.addEventListener('change', () => {
-        currentManagerFilter = select.value || '';
+    getStaffOwners(allOKRs).forEach(owner => {
+        const opt = document.createElement('option');
+        opt.value = owner;
+        opt.textContent = owner;
+        staffSelect.appendChild(opt);
+    });
+    
+    managerSelect.addEventListener('change', () => {
+        currentManagerFilter = managerSelect.value || '';
         selectedOKRId = null;
-        renderOKRs(allOKRs, currentManagerFilter);
+        renderOKRs(allOKRs, currentManagerFilter, currentStaffFilter);
     });
     
-    renderOKRs(allOKRs, currentManagerFilter);
+    staffSelect.addEventListener('change', () => {
+        currentStaffFilter = staffSelect.value || '';
+        selectedOKRId = null;
+        renderOKRs(allOKRs, currentManagerFilter, currentStaffFilter);
+    });
+    
+    renderOKRs(allOKRs, currentManagerFilter, currentStaffFilter);
 }
 
 // Start the app when page loads

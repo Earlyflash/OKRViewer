@@ -9,3 +9,7 @@ ID | Level   | Owner          | Objective          | Key Result              | O
 8  | Manager | Chief Eng      | Margins Better     | 2 more margin           | 3
 9  | Manager | Chief Dude     | Better teams plz     | 5 people hired          | 3
 10 | Manager | Chief Dude     | Margins Better     | 2 more margin           | 1
+11 | Staff   | Head of Tech   | Expand Team        | 1 more people           | 1
+12 | Staff   | Head of Tech   | Expand Happiness        | 1 more happy           | 3
+13 | Staff   | Head of Ultratech   | Expand Team        | 1 more people           | 1
+14 | Staff   | Head of Networks   | Expand Team        | 1 more people           | 1
