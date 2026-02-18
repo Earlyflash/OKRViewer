@@ -155,8 +155,10 @@ function renderOKRs(okrs, managerFilter, staffFilter) {
     } else if (staffFilter) {
         staffToShow = staffOKRs.filter(okr => okr.owner === staffFilter);
         const parentIds = new Set(staffToShow.map(o => o.okrLink).filter(Boolean));
-        chiefsToShow = chiefOKRs.filter(okr => parentIds.has(okr.id));
         managersToShow = managerOKRs.filter(okr => parentIds.has(okr.id));
+        // Chiefs: direct parents of staff (if staff links to chief) + chiefs that are parents of the shown managers
+        const chiefIdsFromManagers = new Set(managersToShow.map(o => o.okrLink).filter(Boolean));
+        chiefsToShow = chiefOKRs.filter(okr => parentIds.has(okr.id) || chiefIdsFromManagers.has(okr.id));
     } else {
         chiefsToShow = chiefOKRs;
         managersToShow = managerOKRs;
