@@ -1,0 +1,5 @@
+# Cloudflare Pages configuration (optional)
+# This file is optional - Pages deployment works without it
+# Only needed if you want to specify project settings
+
+name = "okr-viewer"

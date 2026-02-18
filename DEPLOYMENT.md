@@ -60,9 +60,17 @@ npm install -g wrangler
 # Login to Cloudflare
 wrangler login
 
-# Deploy
+# Deploy - specify project name explicitly
+wrangler pages deploy . --project-name=okr-viewer
+```
+
+**Alternative if above doesn't work:**
+```bash
+# Deploy without specifying project (will prompt for project name)
 wrangler pages deploy .
 ```
+
+**Note**: Make sure you're using `wrangler pages deploy` (not just `wrangler deploy`). The `wrangler.toml` file is optional for Pages deployments but included for reference.
 
 ### Method 3: Direct Upload
 
@@ -93,6 +101,23 @@ wrangler pages deploy .
 4. Follow DNS configuration instructions
 
 ## Troubleshooting
+
+### "Missing entry-point to Worker script" Error
+This error occurs when using the wrong Wrangler command. Solutions:
+
+1. **Use the correct command:**
+   ```bash
+   wrangler pages deploy . --project-name=okr-viewer
+   ```
+   (Note: `pages deploy` not just `deploy`)
+
+2. **Or use Git integration instead** (Method 1) - recommended and easier
+
+3. **If you must use Wrangler, ensure you're in the project root:**
+   ```bash
+   cd /path/to/OKRViewer
+   wrangler pages deploy .
+   ```
 
 ### OKRs.txt not loading
 - Verify `OKRs.txt` is in the repository root

@@ -50,8 +50,11 @@ This project is ready to deploy to Cloudflare Pages:
 2. **Via Wrangler CLI**:
    ```bash
    npm install -g wrangler
+   wrangler login
    wrangler pages deploy .
    ```
+   
+   **Note**: Requires `wrangler.toml` file (included in repository).
 
 3. **Via Cloudflare Dashboard**:
    - Go to Cloudflare Dashboard → Pages
