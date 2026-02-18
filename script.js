@@ -194,9 +194,10 @@ function renderOKRs(okrs, managerFilter, staffFilter) {
         staffToShow = staffOKRs;
     }
     
-    chiefsToShow.forEach(okr => { const c = createOKRCard(okr, okrs); if (c) chiefRow.appendChild(c); });
-    managersToShow.forEach(okr => { const c = createOKRCard(okr, okrs); if (c) managerRow.appendChild(c); });
-    staffToShow.forEach(okr => { const c = createOKRCard(okr, okrs); if (c) staffRow.appendChild(c); });
+    const ownerColors = getOwnerColorMap(okrs);
+    chiefsToShow.forEach(okr => { const c = createOKRCard(okr, okrs, ownerColors); if (c) chiefRow.appendChild(c); });
+    managersToShow.forEach(okr => { const c = createOKRCard(okr, okrs, ownerColors); if (c) managerRow.appendChild(c); });
+    staffToShow.forEach(okr => { const c = createOKRCard(okr, okrs, ownerColors); if (c) staffRow.appendChild(c); });
     
     setTimeout(() => {
         drawConnectionLines(okrs, managerFilter, staffFilter);

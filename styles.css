@@ -139,7 +139,7 @@ header h1 {
 }
 
 .okr-card {
-    background: white;
+    background: var(--owner-bg, white);
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -165,10 +165,11 @@ header h1 {
     left: 0;
     width: 6px;
     height: 100%;
-    background: #667eea;
+    background: var(--owner-accent, #667eea);
     transition: width 0.3s ease;
 }
 
+/* Level-based fallback when --owner-accent not set (e.g. missing owner) */
 .okr-card.chief::before {
     background: linear-gradient(180deg, #f093fb 0%, #f5576c 100%);
 }
@@ -179,6 +180,10 @@ header h1 {
 
 .okr-card.staff::before {
     background: linear-gradient(180deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.okr-card[style*="--owner-accent"]::before {
+    background: var(--owner-accent);
 }
 
 .okr-card:hover {
@@ -235,10 +240,10 @@ header h1 {
 .okr-owner {
     font-size: 1rem;
     font-weight: 600;
-    color: #667eea;
+    color: var(--owner-accent, #667eea);
     margin-bottom: 16px;
     padding: 8px 12px;
-    background: #f0f4ff;
+    background: color-mix(in srgb, var(--owner-accent, #667eea) 12%, white);
     border-radius: 8px;
     display: inline-block;
 }
