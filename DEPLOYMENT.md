@@ -16,10 +16,12 @@ OKRViewer/
 ├── styles.css          # Stylesheet
 ├── script.js           # JavaScript logic
 ├── OKRs.txt           # OKR data file
-├── _redirects         # Cloudflare Pages routing
+├── wrangler.toml      # Cloudflare Workers configuration
 ├── .gitignore         # Git ignore rules
 └── README.md          # Documentation
 ```
+
+**Note**: `_redirects` file is only needed for Cloudflare Pages (not Workers). For Workers deployment, it's not required.
 
 ## Deployment Steps
 
@@ -74,13 +76,15 @@ npm install -g wrangler
 wrangler login
 
 # Deploy (wrangler.toml must have [assets] section)
+# Note: Remove _redirects file before deploying as Worker
 wrangler deploy
 ```
 
-**Note**: 
-- For static sites, `wrangler pages deploy` is recommended
-- If using `wrangler deploy`, ensure `wrangler.toml` has the `[assets]` section configured
+**Important Notes**: 
+- **For Workers**: Do NOT include `_redirects` file - it causes infinite loop errors
+- **For Pages**: `_redirects` file is optional and can be used for routing
 - The `wrangler.toml` file is included with proper assets configuration
+- If deploying via Cloudflare Dashboard (CI/CD), it will use `wrangler deploy` by default
 
 ### Method 3: Direct Upload
 
@@ -111,6 +115,23 @@ wrangler deploy
 4. Follow DNS configuration instructions
 
 ## Troubleshooting
+
+### "Infinite loop detected in _redirects" Error
+This error occurs when deploying as a Worker with a `_redirects` file. Solutions:
+
+1. **Remove `_redirects` file** (it's only for Pages, not Workers):
+   ```bash
+   rm _redirects
+   git rm _redirects
+   git commit -m "Remove _redirects for Workers deployment"
+   ```
+
+2. **Or use Pages deployment instead:**
+   ```bash
+   wrangler pages deploy . --project-name=okr-viewer
+   ```
+
+3. **Or update Cloudflare build settings** to use Pages instead of Workers
 
 ### "Missing entry-point to Worker script" Error
 This error occurs when using the wrong Wrangler command. Solutions:
