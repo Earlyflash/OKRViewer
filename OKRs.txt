@@ -1,11 +1,11 @@
-ID | Level | Owner     | Objective          | Key Result              | OKRLink
-1  | Chief | Chief Tech Bro      | Hire More People   | 10 More people hired    | -
-2  | Chief | Chief Tech Bro      | Make more money    | 10 More money made      | -
-3  | Chief | Chief Tech Bro      | Make everyone happy | 100% happier | -
-4  | Chief | Chief Tech Bro      | Make everyone efficient | 110% efficienter | -
-5  | Manager | DD of Stuff   | Increase Team Size | 3 people hired          | 1
-6  | Manager | DD of Stuff   | Improve Margins    | 4 more margin           | 2
-7  | Manager | Chief Eng   | More Team Size     | 1 people hired          | 2
-8  | Manager | Chief Eng   | Margins Better     | 2 more margin           | 3
-9  | Manager | Chief Dude   | Better teams plz     | 5 people hired          | 3
-10 | Manager | Chief Dude   | Margins Better     | 2 more margin           | 1
+ID | Level   | Owner          | Objective          | Key Result              | OKRLink
+1  | Chief   | Chief Tech Bro | Hire More People   | 10 More people hired    | -
+2  | Chief   | Chief Tech Bro | Make more money    | 10 More money made      | -
+3  | Chief   | Chief Tech Bro | Make everyone happy | 100% happier | -
+4  | Chief   | Chief Tech Bro | Make everyone efficient | 110% efficienter | -
+5  | Manager | DD of Stuff    | Increase Team Size | 3 people hired          | 1
+6  | Manager | DD of Stuff    | Improve Margins    | 4 more margin           | 2
+7  | Manager | Chief Eng      | More Team Size     | 1 people hired          | 2
+8  | Manager | Chief Eng      | Margins Better     | 2 more margin           | 3
+9  | Manager | Chief Dude     | Better teams plz     | 5 people hired          | 3
+10 | Manager | Chief Dude     | Margins Better     | 2 more margin           | 1
