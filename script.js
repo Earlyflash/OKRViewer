@@ -272,7 +272,10 @@ let allOKRs = [];
 let currentManagerFilter = '';
 let currentStaffFilter = '';
 
-// Return the full set of OKR IDs in the hierarchy: selected + all ancestors + all descendants (any number of levels).
+// Return the set of OKR IDs in the hierarchy for the selected OKR.
+// - Always: selected + all ancestors (parent, grandparent, ... up to top).
+// - Descendants only when selected is Chief or Manager: when you select Staff, we do not
+//   traverse down, so we only highlight that Staff and its parent chain (Manager, Chief).
 function getHierarchyIds(okrId) {
     const selectedOKR = allOKRs.find(o => o.id === okrId);
     if (!selectedOKR) return new Set([okrId]);
@@ -286,7 +289,13 @@ function getHierarchyIds(okrId) {
         current = allOKRs.find(o => o.id === current.okrLink);
     }
     
-    // Add all descendants (children, grandchildren, ...) at every level
+    const level = selectedOKR.level.toLowerCase();
+    // Only traverse down when selected is Chief or Manager; Staff selection stays as selected + ancestors only
+    if (level === 'staff') {
+        return ids;
+    }
+    
+    // Add all descendants (children, grandchildren, ...)
     let added = true;
     while (added) {
         added = false;
