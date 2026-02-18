@@ -78,7 +78,7 @@ function parseOKRs(text) {
 }
 
 // Create OKR card element
-function createOKRCard(okr, okrs) {
+function createOKRCard(okr, okrs, ownerColors) {
     if (!okr || !okr.level) {
         console.error('Invalid OKR object:', okr);
         return null;
@@ -91,6 +91,12 @@ function createOKRCard(okr, okrs) {
     card.className = `okr-card ${levelClass}`;
     card.dataset.okrId = okr.id;
     card.dataset.okrLink = okr.okrLink || '';
+    
+    const colors = ownerColors && okr.owner && ownerColors[okr.owner];
+    if (colors) {
+        card.style.setProperty('--owner-accent', colors.accent);
+        card.style.setProperty('--owner-bg', colors.bg);
+    }
     
     const parentOKR = okr.okrLink ? okrs.find(o => o.id === okr.okrLink) : null;
     const linkText = parentOKR ? `🔗 Links to <strong>${parentOKR.objective}</strong>` : '';
@@ -106,6 +112,29 @@ function createOKRCard(okr, okrs) {
     card.addEventListener('click', () => selectOKR(okr.id));
     
     return card;
+}
+
+// Pleasant color palette for owner-based coloring (accent, light background)
+const OWNER_COLORS = [
+    { accent: '#6366f1', bg: '#eef2ff' },   /* indigo */
+    { accent: '#059669', bg: '#ecfdf5' },   /* emerald */
+    { accent: '#dc2626', bg: '#fef2f2' },  /* rose */
+    { accent: '#ea580c', bg: '#fff7ed' },   /* amber */
+    { accent: '#7c3aed', bg: '#f5f3ff' },  /* violet */
+    { accent: '#0d9488', bg: '#f0fdfa' },  /* teal */
+    { accent: '#c026d3', bg: '#fdf4ff' },  /* fuchsia */
+    { accent: '#2563eb', bg: '#eff6ff' },  /* blue */
+    { accent: '#ca8a04', bg: '#fefce8' },  /* yellow */
+    { accent: '#be123c', bg: '#fff1f2' },  /* pink */
+];
+
+function getOwnerColorMap(okrs) {
+    const owners = [...new Set(okrs.map(o => o.owner).filter(Boolean))].sort();
+    const map = {};
+    owners.forEach((owner, i) => {
+        map[owner] = OWNER_COLORS[i % OWNER_COLORS.length];
+    });
+    return map;
 }
 
 // Get unique manager owners from OKRs
