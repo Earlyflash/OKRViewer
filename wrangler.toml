@@ -1,5 +1,6 @@
-# Cloudflare Pages configuration (optional)
-# This file is optional - Pages deployment works without it
-# Only needed if you want to specify project settings
-
+# Cloudflare Pages configuration
 name = "okr-viewer"
+compatibility_date = "2026-02-18"
+
+[assets]
+directory = "."

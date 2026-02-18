@@ -53,6 +53,7 @@ OKRViewer/
 
 ### Method 2: Wrangler CLI
 
+**Option A: Using Pages (Recommended for static sites)**
 ```bash
 # Install Wrangler (if not already installed)
 npm install -g wrangler
@@ -60,17 +61,26 @@ npm install -g wrangler
 # Login to Cloudflare
 wrangler login
 
-# Deploy - specify project name explicitly
+# Deploy using Pages
 wrangler pages deploy . --project-name=okr-viewer
 ```
 
-**Alternative if above doesn't work:**
+**Option B: Using Workers with Assets**
 ```bash
-# Deploy without specifying project (will prompt for project name)
-wrangler pages deploy .
+# Install Wrangler (if not already installed)
+npm install -g wrangler
+
+# Login to Cloudflare
+wrangler login
+
+# Deploy (wrangler.toml must have [assets] section)
+wrangler deploy
 ```
 
-**Note**: Make sure you're using `wrangler pages deploy` (not just `wrangler deploy`). The `wrangler.toml` file is optional for Pages deployments but included for reference.
+**Note**: 
+- For static sites, `wrangler pages deploy` is recommended
+- If using `wrangler deploy`, ensure `wrangler.toml` has the `[assets]` section configured
+- The `wrangler.toml` file is included with proper assets configuration
 
 ### Method 3: Direct Upload
 
