@@ -251,15 +251,13 @@ function updateLineHighlighting() {
     lines.forEach(line => {
         line.classList.remove('highlighted', 'faded');
         
-        if (selectedOKRId) {
+        if (selectedOKRId && inHierarchy) {
             const fromId = parseInt(line.getAttribute('data-from'));
             const toId = parseInt(line.getAttribute('data-to'));
-            const lineInHierarchy = inHierarchy && (inHierarchy.has(fromId) || inHierarchy.has(toId));
+            const lineInHierarchy = inHierarchy.has(fromId) && inHierarchy.has(toId);
             
             if (lineInHierarchy) {
-                if (fromId === selectedOKRId || toId === selectedOKRId) {
-                    line.classList.add('highlighted');
-                }
+                line.classList.add('highlighted');
             } else {
                 line.classList.add('faded');
             }
@@ -274,7 +272,36 @@ let allOKRs = [];
 let currentManagerFilter = '';
 let currentStaffFilter = '';
 
-// Select an OKR and highlight related ones (parent and subordinates at each level).
+// Return the full set of OKR IDs in the hierarchy: selected + all ancestors + all descendants (any number of levels).
+function getHierarchyIds(okrId) {
+    const selectedOKR = allOKRs.find(o => o.id === okrId);
+    if (!selectedOKR) return new Set([okrId]);
+    
+    const ids = new Set([okrId]);
+    
+    // Add all ancestors (parent, grandparent, ...)
+    let current = selectedOKR;
+    while (current && current.okrLink) {
+        ids.add(current.okrLink);
+        current = allOKRs.find(o => o.id === current.okrLink);
+    }
+    
+    // Add all descendants (children, grandchildren, ...) at every level
+    let added = true;
+    while (added) {
+        added = false;
+        allOKRs.forEach(okr => {
+            if (okr.okrLink && ids.has(okr.okrLink) && !ids.has(okr.id)) {
+                ids.add(okr.id);
+                added = true;
+            }
+        });
+    }
+    
+    return ids;
+}
+
+// Select an OKR and highlight all related OKRs in the full hierarchy (multiple levels up/down).
 // OKRs outside the hierarchy are faded out. Click the same OKR again to clear selection.
 function selectOKR(okrId) {
     const okrs = Array.from(document.querySelectorAll('.okr-card'));
@@ -292,58 +319,21 @@ function selectOKR(okrId) {
     });
     
     selectedOKRId = okrId;
-    linkedOKRIds.clear();
     
     const selectedCard = document.querySelector(`[data-okr-id="${okrId}"]`);
     if (!selectedCard) return;
     
+    const inHierarchy = getHierarchyIds(okrId);
+    linkedOKRIds = new Set(inHierarchy);
+    linkedOKRIds.delete(okrId);
+    
     selectedCard.classList.add('selected');
-    
-    const okrLink = selectedCard.dataset.okrLink;
-    const selectedOKR = allOKRs.find(o => o.id === okrId);
-    if (!selectedOKR) return;
-    
-    const level = selectedOKR.level.toLowerCase();
-    const inHierarchy = new Set([okrId]);
-    
-    if (level === 'chief') {
-        okrs.forEach(card => {
-            if (card.dataset.okrLink === okrId.toString()) {
-                card.classList.add('linked');
-                linkedOKRIds.add(parseInt(card.dataset.okrId));
-                inHierarchy.add(parseInt(card.dataset.okrId));
-            }
-        });
-    } else if (level === 'manager') {
-        if (okrLink) {
-            inHierarchy.add(parseInt(okrLink));
-            const parentCard = document.querySelector(`[data-okr-id="${okrLink}"]`);
-            if (parentCard) {
-                parentCard.classList.add('linked');
-                linkedOKRIds.add(parseInt(okrLink));
-            }
-        }
-        okrs.forEach(card => {
-            if (card.dataset.okrLink === okrId.toString()) {
-                card.classList.add('linked');
-                linkedOKRIds.add(parseInt(card.dataset.okrId));
-                inHierarchy.add(parseInt(card.dataset.okrId));
-            }
-        });
-    } else if (level === 'staff') {
-        if (okrLink) {
-            inHierarchy.add(parseInt(okrLink));
-            const parentCard = document.querySelector(`[data-okr-id="${okrLink}"]`);
-            if (parentCard) {
-                parentCard.classList.add('linked');
-                linkedOKRIds.add(parseInt(okrLink));
-            }
-        }
-    }
     
     okrs.forEach(card => {
         const id = parseInt(card.dataset.okrId);
-        if (!inHierarchy.has(id)) {
+        if (inHierarchy.has(id) && id !== okrId) {
+            card.classList.add('linked');
+        } else if (!inHierarchy.has(id)) {
             card.classList.add('faded');
         }
     });
