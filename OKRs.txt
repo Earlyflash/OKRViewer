@@ -1,16 +1,19 @@
-ID | Level   | Owner          | Objective          | Key Result              | OKRLink
-1  | Chief   | Chief Tech Bro | Hire More People   | 10 More people hired    | -
-2  | Chief   | Chief Tech Bro | Make more money    | 10 More money made      | -
-3  | Chief   | Chief Tech Bro | Make everyone happy | 100% happier           | -
-4  | Chief   | Chief Tech Bro | Make everyone efficient | 110% efficienter   | -
-5  | Manager | DD of Stuff    | Increase Team Size | 3 people hired          | 1
-6  | Manager | DD of Stuff    | Improve Margins    | 4 more margin           | 2
-7  | Manager | DD of Stuff    | Improve Happiness  | 4 more happy            | 3
-8  | Manager | Chief Eng      | More Team Size     | 1 people hired          | 1
-9  | Manager | Chief Eng      | Margins Better     | 2 more margin           | 2
-10 | Manager | Chief Eng      | Efficiency Boost   | 1 more efficient        | 4
-11 | Manager | Chief Dude     | Better teams plz   | 5 people hired          | 1
-12 | Manager | Chief Dude     | Margins Better     | 2 more margin           | 2
+ID | Level | Owner          | Objective          | Key Result              | OKRLink
+1  | Chief | CTO | Build a Diverse, Skilled Digital Workforce                       | Create a people-powered organization with strong, inclusive digital capability | -
+2  | Chief | CTO | Deliver a Modern Data Mesh for Faster and Higer Quality Insights | Enable decision makers to access trusted insights quickly and independently. | -
+3  | Chief | CTO | Accelerate Delivery Through Foundational Platforms               | Get applications into customers’ hands faster by reducing developer toil. | -
+4  | Chief | CTO | Strengthen Strategic Alignment and Governance Across Federated Units | All business units align to shared outcomes while retaining autonomy and improving governance maturity. | -
+18 | Chief | CTO | Maximise Cloud and Technology Estate Value                       | Optimize cloud spend and achieve full visibility of the technology estate without impacting performance. | -
+19 | Chief | CTO | Deliver an exemplar standards hub                                | Provide a clear repository of architectural, data engineering and design standards that is available to all. | -
+20 | Chief | CTO | Simplify the IT estate.                                          | Simplify the technology estate by reducing the number of distinct software components and providers, improving overall simplicity and maintainability. | - 
+5  | Manager | DD for Delivery Governance | Increase Team Size | 3 people hired          | 1
+6  | Manager | DD for Delivery Governance | Improve Margins    | 4 more margin           | 2
+7  | Manager | DD for Delivery Governance | Improve Happiness  | 4 more happy            | 3
+8  | Manager | Chief Engineer      | More Team Size     | 1 people hired          | 1
+9  | Manager | Chief Engineer      | Margins Better     | 2 more margin           | 2
+10 | Manager | Chief Engineer      | Efficiency Boost   | 1 more efficient        | 4
+11 | Manager | Chief Architect     | Better teams plz   | 5 people hired          | 1
+12 | Manager | Chief Architect     | Margins Better     | 2 more margin           | 2
 13 | Staff   | Head of Tech   | Expand Team        | 1 more people           | 5
 14 | Staff   | Head of Tech   | Expand Happiness        | 1 more happy       | 7
 15 | Staff   | Head of Ultratech   | Expand Team        | 1 more people      | 8
